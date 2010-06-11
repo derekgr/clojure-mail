@@ -1,0 +1,4 @@
+You need Clojure 1.2. Check bin/mail-to-sqlite for an example, which slurps email down from
+a target folder on a server specified by a properties file to a local sqlite database.
+
+Still learning Clojure, so if you come across this and have comments, please let me know.
