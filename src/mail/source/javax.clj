@@ -107,7 +107,7 @@
       (nth [x i] (if (<= i message-count) (.message-at x i)))
       clojure.lang.Counted
       (count [x] message-count)
-      mail.core.Folder
+      mail.core.Source
       (message-at [x i] 
          (let [message (message-with-reopen jfolder i)
                id (message-id jfolder i)]
@@ -119,12 +119,8 @@
    (let [session (Session/getInstance config)
          props (str-keyword-map config)
          store (connect (.getStore session) props password-fn)]
-    (reify mail.core.Mailboxes
-           (default-folder 
-             [x]
-             (if (contains? props :mail.folder) 
-               (.folder x (props :mail.folder))
-               (make-folder props (.getDefaultFolder store))))
-           (folder [x nm] (make-folder props (.getFolder store nm))))))
+     (if (contains? props :mail.folder) 
+       (make-folder props (.getFolder store (props :mail.folder)))
+       (make-folder props (.getDefaultFolder store)))))
   ([config] (make-session config #(.getProperty config "mail.password"))))
 

@@ -1,4 +1,5 @@
 (ns mail.sink.sqlite
+  "Writes core.Messages to a sqlite database backed by a file."
   (:require [mail.core :as core])
   (:import [java.sql Connection DriverManager Statement PreparedStatement]))
 
@@ -33,9 +34,11 @@
 
 (defn- create-tables [conn]
   (let [create-stmt (.createStatement conn)]
-    (.executeUpdate create-stmt (str "
-                                     create table if not exists mail 
-                                     (id text primary key, \"from\" text, \"to\" text, subj text, body text, tags text)")))) 
+    (.executeUpdate 
+      create-stmt 
+      (str
+        "create table if not exists mail 
+        (id text primary key, \"from\" text, \"to\" text, subj text, body text, tags text)")))) 
 
 (defn create-with 
   "Reify mail.core.Sink with a sqlite database writer with the given connection."
