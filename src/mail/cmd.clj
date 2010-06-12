@@ -21,9 +21,11 @@
   (mail.sink.sqlite/create-with-file filename))
 
 (defn- int-arg [args i default]
-  (try
-    (Integer/parseInt (nth args i))
-  (catch IndexOutOfBoundsException e default)))
+  (if-let [arg (nth args i)]
+    (try
+      (Integer/parseInt arg)
+      (catch IndexOutOfBoundsException e default))
+    default))
 
 (defn copy [[sourcespec sinkspec & args]]
   (let [source (apply init (split-str-at sourcespec ":"))

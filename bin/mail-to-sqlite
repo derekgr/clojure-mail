@@ -1,6 +1,6 @@
 #!/bin/sh
 
-function usage {
+usage () {
  cat <<EOM
 $0 [-h] [-p threads] properties sqlite-db-file [start end]
 
