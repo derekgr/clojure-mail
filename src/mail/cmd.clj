@@ -37,7 +37,7 @@
 (defn pcopy [[threads sourcespec sinkspec & args]]
   (let [source #(apply init (split-str-at sourcespec ":"))
         sink #(apply init (split-str-at sinkspec ":"))
-        start (int-arg args 0 0)
+        start (int-arg args 0 1)
         end (int-arg args 1 (count (source)))]
     (core/parallel-copy source sink (range start end) (Integer/parseInt threads))
     (shutdown-agents))) 
