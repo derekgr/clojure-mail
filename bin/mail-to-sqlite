@@ -3,4 +3,7 @@
 SRC=`dirname $0`/../src
 LIB=`dirname $0`/../lib
 CLASSPATH=$CLASSPATH:$SRC:$LIB/*:
-java clojure.main $SRC/mailbot/mailbot.clj $*
+PROPS=$1
+SQLDB=$2
+shift 2
+java clojure.main $SRC/mail/cmd.clj copy javax:$PROPS sqlite:$SQLDB $*

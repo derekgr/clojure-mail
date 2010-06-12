@@ -1,5 +1,5 @@
-(ns mailbot.store.sqlite
-  (:require [mailbot.mail :as mail])
+(ns mail.sink.sqlite
+  (:require [mail.types :as types])
   (:import [java.sql Connection DriverManager Statement PreparedStatement]))
 
 (def *insert-sql* (str 
@@ -38,20 +38,20 @@
                                      (id text primary key, \"from\" text, \"to\" text, subj text, body text, tags text)")))) 
 
 (defn create-with 
-  "Reify mailbot.mail.Sink with a sqlite database writer with the given connection."
+  "Reify mail.types.Sink with a sqlite database writer with the given connection."
   [conn]
   (let [_ (create-tables conn)
         insert-message (.prepareStatement conn *insert-sql*)
         counter (atom 1)]
-      (reify mail/Sink
+      (reify mail.types.Sink
         (write [x msg]
           (let [cols [:id :from :to :subject :body :tags]
-                vls (map msg cols)]
+                vls (map #(get msg %) cols)]
           (apply-to-statement counter insert-message vls)))
         (flush-messages [x] (flush-stmt conn insert-message)))))
 
 (defn create-with-file 
-  "Reify mailbot.mail.Sink with a sqlite database writer to the given file."
+  "Reify mail.types.Sink with a sqlite database writer to the given file."
   [fname] 
   (let [klass (Class/forName "org.sqlite.JDBC")
         conn (DriverManager/getConnection (str "jdbc:sqlite:" fname))]
