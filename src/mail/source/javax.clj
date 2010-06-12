@@ -1,5 +1,5 @@
 (ns mail.source.javax
-  (:require [mail.types :as types])
+  (:require [mail.core :as core])
   (:require [clojure.contrib.logging :as log])
   (:import (javax.mail Session)))
 
@@ -80,7 +80,7 @@
          from (strs (.getFrom m))
          to (strs (.getRecipients m javax.mail.Message$RecipientType/TO)) 
          body (body-or-nil m)]
-     (mail.types.Message. id subject from to body content-type))))
+     (mail.core.Message. id subject from to body content-type))))
       
 (defn- message-id [folder message]
   (str message))
@@ -107,7 +107,7 @@
       (nth [x i] (if (<= i message-count) (.message-at x i)))
       clojure.lang.Counted
       (count [x] message-count)
-      mail.types.Folder
+      mail.core.Folder
       (message-at [x i] 
          (let [message (message-with-reopen jfolder i)
                id (message-id jfolder i)]
@@ -119,7 +119,7 @@
    (let [session (Session/getInstance config)
          props (str-keyword-map config)
          store (connect (.getStore session) props password-fn)]
-    (reify mail.types.Mailboxes
+    (reify mail.core.Mailboxes
            (default-folder 
              [x]
              (if (contains? props :mail.folder) 

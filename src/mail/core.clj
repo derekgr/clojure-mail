@@ -1,4 +1,4 @@
-(ns mail.types)
+(ns mail.core)
 
 ;; A generic record type.
 (defrecord Message 
@@ -32,4 +32,3 @@
 
 (defn copy-range [folder sink s]
   (copy-messages (source-range folder s) sink))
-

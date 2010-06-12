@@ -1,5 +1,5 @@
 (ns mail.cmd
-  (:require [mail.types :as types])
+  (:require [mail.core :as core])
   (:require [mail.util :as util])
   (:require mail.source.javax) 
   (:require mail.sink.sqlite)) 
@@ -22,8 +22,8 @@
         sink (apply init (split-str-at sinkspec ":"))
         inbox (.default-folder source)
         start (nth args 0 1)
-        end (nth args 1 10000)]
-    (types/copy-range inbox sink (range start end)))) 
+        end (nth args 1 1000)]
+    (core/copy-range inbox sink (range start end)))) 
 
 (defn main [[cmd & args]]
   ((eval (symbol cmd)) args))
