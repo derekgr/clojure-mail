@@ -20,12 +20,25 @@
 (defn init-sqlite [[filename]]
   (mail.sink.sqlite/create-with-file filename))
 
+(defn- int-arg [args i default]
+  (try
+    (Integer/parseInt (nth args i))
+  (catch IndexOutOfBoundsException e default)))
+
 (defn copy [[sourcespec sinkspec & args]]
   (let [source (apply init (split-str-at sourcespec ":"))
         sink (apply init (split-str-at sinkspec ":"))
-        start (nth args 0 1)
-        end (nth args 1 1000)]
+        start (int-arg args 0 1)
+        end (int-arg args 1 (count source))]
     (core/copy-range source sink (range start end)))) 
+
+(defn pcopy [[threads sourcespec sinkspec & args]]
+  (let [source #(apply init (split-str-at sourcespec ":"))
+        sink #(apply init (split-str-at sinkspec ":"))
+        start (int-arg args 0 0)
+        end (int-arg args 1 (count (source)))]
+    (core/parallel-copy source sink (range start end) (Integer/parseInt threads))
+    (shutdown-agents))) 
 
 (defn main [[cmd & args]]
   ((eval (symbol cmd)) args))

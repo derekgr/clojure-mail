@@ -4,11 +4,8 @@ A clojure library for downloading and experimenting with mail messages.
 
 ## Usage
 
-bin/mail-to-sqlite properties-file db-file
-
-Creates or updates a sqlite database with the contents of the mailbox identified by
-properties-file, which specifies the properties the javax.mail framework uses to actually
-grab the messages. Check out conf/example.properties.
+Run bin/mail-to-sqlite with no arguments for example usage and conf/example.properties for
+example configuration.
 
 ## Installation
 

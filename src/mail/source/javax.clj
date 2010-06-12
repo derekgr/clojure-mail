@@ -1,7 +1,7 @@
 (ns mail.source.javax
   (:require [mail.core :as core])
   (:require [clojure.contrib.logging :as log])
-  (:import (javax.mail Session)))
+  (:import (javax.mail Session Authenticator PasswordAuthentication)))
 
 (defn- connect 
  "Given a javax.mail.Store, config, and function yielding a password, change state 
@@ -113,13 +113,18 @@
                id (message-id jfolder i)]
            (make-message id message props))))))
 
+(defn- make-auth [user f]
+  (proxy [Authenticator] []
+    (getPasswordAuthentication [] (PasswordAuthentication. user (f)))))
+
 (defn make-session 
   "Abstract the connection sequence to an IMAP mailbox."
   ([config password-fn]
-   (let [session (Session/getInstance config)
-         props (str-keyword-map config)
-         store (connect (.getStore session) props password-fn)]
-     (if (contains? props :mail.folder) 
+   (let [props (str-keyword-map config)
+         auth (make-auth (props :mail.user) password-fn)
+         session (Session/getInstance config auth)
+         store (doto (.getStore session) (.connect))]
+     (if (props :mail.folder) 
        (make-folder props (.getFolder store (props :mail.folder)))
        (make-folder props (.getDefaultFolder store)))))
   ([config] (make-session config #(.getProperty config "mail.password"))))

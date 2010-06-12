@@ -27,3 +27,22 @@
 
 (defn copy-range [source sink s]
   (copy-messages (source-range source s) sink))
+
+(defn- consume [queue-ref] 
+  (dosync
+    (when-let [[h & t] @queue-ref]
+      (ref-set queue-ref t)
+      h)))
+
+(defn copy-until-empty [[source sink] queue-ref]
+  (let [h (consume queue-ref)]
+    (loop [item h]
+      (when item
+        (.write sink (.message-at source item))
+        (recur (consume queue-ref))))))
+
+(defn parallel-copy [source-fn sink-fn s threads]
+  (let [queue (ref s)
+        agents (map (fn [i] (agent [(source-fn) (sink-fn)])) (range 0 threads))]
+    (dorun (map #(send-off %1 copy-until-empty queue) agents))
+    (apply await agents)))

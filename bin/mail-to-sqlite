@@ -1,9 +1,42 @@
 #!/bin/sh
 
+function usage {
+ cat <<EOM
+$0 [-h] [-p threads] properties sqlite-db-file [start end]
+
+Fetches the mail from the server with configuration specified in the given properties file,
+writing fetched mail to a sqlite database at sqlite-db-file. You can pass start and end indices,
+or omit them for the entire mail source.
+
+OPTIONS
+  -p N:
+    Download the mail in parallel using N threads. Recommended for faster downloading if your
+    mail server supports multiple connections.
+
+EXAMPLE
+  $0 -p 8 example.properties example-db.db 1 5000
+  Downloads 5000 messages using 8 threads from the server specified in example.properties to
+  example-db.db.
+EOM
+ exit 1
+}
+
 SRC=`dirname $0`/../src
 LIB=`dirname $0`/../lib
 CLASSPATH=$CLASSPATH:$SRC:$LIB/*:
+
+ACTION=copy
+while getopts "hp:" opt; do
+  case $opt in
+    h) usage ;;
+    p) ACTION="pcopy $OPTARG" ;;
+    ?) usage ;;
+  esac
+done
+shift $(( OPTIND - 1 ));
+
 PROPS=$1
 SQLDB=$2
 shift 2
-java clojure.main $SRC/mail/cmd.clj copy javax:$PROPS sqlite:$SQLDB $*
+
+java clojure.main $SRC/mail/cmd.clj $ACTION javax:$PROPS sqlite:$SQLDB $*
